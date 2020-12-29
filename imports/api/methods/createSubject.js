@@ -7,5 +7,8 @@ Meteor.methods({
     },
     "updateSubject"(_id,student){
         return Subjects.update({_id},{$push: { students: { student } }});
+    },
+    "deleteSubject"(id){
+        return Subjects.remove({_id:id});
     }
 })
