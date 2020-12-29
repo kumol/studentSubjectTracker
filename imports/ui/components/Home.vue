@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div class="container">
     <div class="menuBar">
       <ul class="nav-style">
-        <li><button class="button" @click="select('stForm')">Add Student</button></li>
-        <li><button class="button" @click="select('stList')">Student List</button></li>
-        <li><button class="button" @click="select('sbForm')">Add Subject</button></li>
-        <li><button class="button" @click="select('sbList')">Subject List</button></li>
-        <li><button class="button" @click="select('asSubject')">subjectAssign</button></li>
+        <li><button class="button btn btn-secondary" @click="select('stForm')">Add Student</button></li>
+        <li><button class="button btn btn-secondary" @click="select('stList')">Student List</button></li>
+        <li><button class="button btn btn-secondary" @click="select('sbForm')">Add Subject</button></li>
+        <li><button class="button btn btn-secondary" @click="select('sbList')">Subject List</button></li>
+        <li><button class="button btn btn-secondary" @click="select('asSubject')">subjectAssign</button></li>
       </ul>
     </div>
     <div v-show="stForm">
@@ -53,6 +53,7 @@
           <td>
             {{subject.title}}
           </td>
+          <td>{{showStudents(subject)}}</td>
         </tr>
       </table>
     </div>
@@ -97,6 +98,8 @@
           <li v-for="subject in subjects" :key="subject.title"><button @click="allocSub(subject)">{{subject.title}}</button></li>
       </ul>
 
+      <button @click="updateSubject()">updateSubject</button>
+
       <button @click="saveAllocatedSubjects()">Save</button>
       </div>
     </div>
@@ -138,6 +141,16 @@ export default {
     }
   },
   methods: {
+    showStudents(subject){
+      let val;
+      if(subject.students){
+        val = subject.students.map(s=>{
+          // console.log(s.student.name)
+          // console.log(s.student.email)
+          return s.student.name}).toString();
+      }
+      return val;
+    },
     selectedSubjectList(){
       if(this.subjectList){
         return this.subjectList.map(x=>{return x.title}).toString()
@@ -148,7 +161,7 @@ export default {
       let val;
       if(student.subjects){
         val = student.subjects.map(s=>{return s.title}).toString();
-        console.log(val)
+        //console.log(val)
       }
       return val;
     },
@@ -159,10 +172,23 @@ export default {
       }
     },
     asignSubject(student){
-      console.log(student);
       //this.hideList = false;
       this.selectedStudent = student;
       this.subjectList = student.subjects ? student.subjects : [];
+    },
+    updateSubject(id,student){
+      // let id = "muzMNWoNYiB7ueMmK";
+      console.log(id);
+      console.log(student);
+
+      Meteor.call('updateSubject',id,student,(error)=>{
+        if(error){
+          alert(error);
+        }
+        else{
+          console.log("success in subjectUpdate");
+        }
+      })
     },
     saveAllocatedSubjects(){
       event.preventDefault()
@@ -170,12 +196,29 @@ export default {
         if(error){
           alert(error);
         }else{
+          this.subjectList.forEach(sub => {
+            if(sub.students){
+              isStudent = sub.students.find(s=> {return s.student._id == this.selectedStudent._id});
+              if(isStudent){
+                  console.log(isStudent.name)
+              }else{
+                console.log("colling updateSubject");
+                console.log(sub._id);
+                console.log(this.selectedStudent);
+                //updateSubject(sub._id,this.selectedStudent);
+                
+              }
+            }
+            else{
+              //console.log("colling updateSubject",sub._id,this.selectedStudent);
+              this.updateSubject(sub._id,this.selectedStudent);
+            }
+          });
           this.subjectList=null
           console.log("success"+ this.subjectList);
         }
       })
-    }
-    ,
+    },
     addSubject(event){
       event.preventDefault()
       Meteor.call('createSubject',this.title,(error)=>{

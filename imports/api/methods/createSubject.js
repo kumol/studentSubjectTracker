@@ -5,7 +5,8 @@ Meteor.methods({
     "createSubject"(title){
         return Subjects.insert({title});
     },
-    "updatesubject"(_id,list){
-        return Subjects.update({_id},{$set:{students:list}})
+    "updateSubject"(_id,student){
+        console.log(student);
+        return Subjects.update({_id},{$push: { students: { student } }});
     }
 })
