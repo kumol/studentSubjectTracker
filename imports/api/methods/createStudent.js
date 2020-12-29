@@ -13,7 +13,6 @@ Meteor.methods({
         })
     },
     "updateStudent"(id,list){
-        console.log(list);
         return Students.update({_id:id},{$set: { subjects: list }})
     }
 })

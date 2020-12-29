@@ -10,22 +10,23 @@
       </ul>
     </div>
     <div v-show="stForm">
-        <form class="info-link-add">
-          <input type="text" v-model="name" name="name" placeholder="Name" required>
-          <input type="text" v-model="email" name="email" placeholder="Email" required>
-          <input type="text" v-model="phone" name="phone" placeholder="Phone Number">
-          <input type="date" v-model="birthDate" name="birthDate" placeholder="Birth Date">
-          <input type="submit" name="submit" @click="addStudent($event)" value="Add new Student">
+        <form class="form-group" style="margin:0 auto;">
+          <input type="text" class="form-control col-md-5 mb-3" v-model="name" name="name" placeholder="Name" required>
+          <input type="text" class="form-control col-md-5 mb-3" v-model="email" name="email" placeholder="Email" required>
+          <input type="text" class="form-control col-md-5 mb-3" v-model="phone" name="phone" placeholder="Phone Number">
+          <input type="date" class="form-control col-md-5 mb-3" v-model="birthDate" name="birthDate" placeholder="Birth Date">
+          <input type="submit" class="btn btn-primary col-md-3 mb-4" name="submit" @click="addStudent($event)" value="Add new Student">
         </form>
     </div>
     <div v-show="stList">
-       <table>
+       <table class="table">
         <thead>
           <th>Name</th>
           <th>Email</th>
           <th>Phone</th>
           <th>Date of birth</th>
           <th>Subjects</th>
+          <th>Action</th>
         </thead>
         <tr v-for="student in students" :key="student._id">
           <td>{{student.name}}</td>
@@ -33,17 +34,18 @@
           <td>{{student.phone}}</td>
           <td>{{student.birthDate}}</td>
           <td>{{showData(student)}}</td>
+          <td><button class="btn btn-danger" @click="deleteStudent(student)">Delete</button></td>
         </tr>
       </table>
     </div>
     <div v-show="sbForm">
-      <form class="info-link-add">
-          <input type="text" v-model="title" name="title" placeholder="title" required>
-          <input type="submit" name="submit" @click="addSubject($event)" value="Add new Student">
-        </form>
+      <form class="form-group">
+          <input type="text" class="form-control col-md-5 mb-3" v-model="title" name="title" placeholder="title" required>
+          <input type="submit" class="btn btn-primary col-md-2" name="submit" @click="addSubject($event)" value="Add new Student">
+      </form>
     </div>
     <div v-show="sbList">
-      <table>
+      <table class="table">
         <thead>
           <th>Title</th>
           <th>Students</th>
@@ -54,12 +56,14 @@
             {{subject.title}}
           </td>
           <td>{{showStudents(subject)}}</td>
+          <td><button @click="deleteSubject(subject)" class="btn btn-danger">Delete</button></td>
         </tr>
       </table>
     </div>
 
+  <button @click="removeSubjectOperation()">remove</button>
     <div v-show="asSubject">
-      <table v-show="hideList">
+      <table class="table" v-show="hideList">
         <thead>
           <th>Name</th>
           <th>Email</th>
@@ -67,19 +71,20 @@
           <th>Date of birth</th>
           <th>Subjects</th>
           <th>AsignSubject</th>
+          
         </thead>
         <tr v-for="student in students" :key="student._id">
           <td>{{student.name}}</td>
           <td>{{student.email}}</td>
           <td>{{student.phone}}</td>
           <td>{{student.birthDate}}</td>
-          <td>{{student.birthDate}}</td>
-          <td><button @click="asignSubject(student)">assign Subject</button></td>
+          <td>{{showData(student)}}</td>
+          <td><button class="btn btn-light" @click="asignSubject(student)">assign Subject</button></td>
         </tr>
       </table>
 
       <div>
-        <table>
+        <table class="table">
           <thead>
             <th>Name</th>
             <th>Email</th>
@@ -94,13 +99,14 @@
           </tr>
       </table>
 
-      <ul>
-          <li v-for="subject in subjects" :key="subject.title"><button @click="allocSub(subject)">{{subject.title}}</button></li>
+      <ul style="list-style:none; display:inline-flex;">
+          <li v-for="subject in subjects" :key="subject.title" class="mr-3"><button class="btn btn-success" @click="allocSub(subject)">{{subject.title}}</button></li>
       </ul>
 
-      <button @click="updateSubject()">updateSubject</button>
-
-      <button @click="saveAllocatedSubjects()">Save</button>
+      <div class="row">
+        <!-- <button class="btn btn-primary" @click="updateSubject()">updateSubject</button> -->
+        <button style="margin:0 auto;" class="btn btn-primary" @click="saveAllocatedSubjects()">Save</button>
+      </div>
       </div>
     </div>
   </div>
@@ -125,6 +131,7 @@ export default {
       title: "",
       selectedStudent:{},
       subjectList:[],
+      selectedSubject:null,
       subjectListId:[],
     }
   },
@@ -175,6 +182,15 @@ export default {
       //this.hideList = false;
       this.selectedStudent = student;
       this.subjectList = student.subjects ? student.subjects : [];
+    },
+    deleteStudent(student){
+      Meteor.call("deleteStudent",student._id,(error)=>{
+        if(error){
+          alert(error)
+        }else{
+          console.log("Success in Delete");
+        }
+      })
     },
     updateSubject(id,student){
       // let id = "muzMNWoNYiB7ueMmK";
@@ -242,6 +258,28 @@ export default {
           this.phone = '',
           this.birthDate =null
         }
+      })
+    },
+    deleteSubject(subject){
+      
+      Meteor.call("deleteSubject",subject._id,(error)=>{
+        if(error){
+          alert(error)
+        }else{
+          console.log("Success in Delete");
+          this.removeSubjectOperation(subject);
+        }
+      })
+    },
+    removeSubjectOperation(subject){
+      this.students.forEach(e=>{
+        Meteor.call("updateStudentSubjectDeleted",e._id,subject,(error)=>{
+          if(error){
+            alert(error)
+          }else{
+            console.log("deleted One time");
+          }
+        })
       })
     },
      select(id){
