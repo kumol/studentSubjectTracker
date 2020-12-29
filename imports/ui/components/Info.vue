@@ -32,7 +32,7 @@
           <td>{{student.email}}</td>
           <td>{{student.phone}}</td>
           <td>{{student.birthDate}}</td>
-          <td>{{student.birthDate}}</td>
+          <td>{{showData(student)}}</td>
         </tr>
       </table>
     </div>
@@ -89,7 +89,7 @@
             <td>{{selectedStudent.name}}</td>
             <td>{{selectedStudent.email}}</td>
             <td>{{selectedStudent.phone}}</td>
-            <td>{{subjectList.map(x=>{return x.title}).toString()}}</td>
+            <td>{{selectedSubjectList()}}</td>
           </tr>
       </table>
 
@@ -138,15 +138,44 @@ export default {
     }
   },
   methods: {
+    selectedSubjectList(){
+      if(this.subjectList){
+        return this.subjectList.map(x=>{return x.title}).toString()
+      }
+      return ""
+    },
+    showData(student){
+      let val;
+      if(student.subjects){
+        val = student.subjects.map(s=>{return s.title}).toString();
+        console.log(val)
+      }
+      return val;
+    },
     allocSub(sub){
-      this.subjectList.push(sub);
-      console.log(this.subjectList.map(x=>{return x.title}));
+      let subject = this.subjectList.find(s=>{return s._id == sub._id});
+      if(!subject){
+        this.subjectList.push(sub);
+      }
     },
     asignSubject(student){
       console.log(student);
       //this.hideList = false;
       this.selectedStudent = student;
+      this.subjectList = student.subjects ? student.subjects : [];
     },
+    saveAllocatedSubjects(){
+      event.preventDefault()
+      Meteor.call('updateStudent',this.selectedStudent._id,this.subjectList,(error)=>{
+        if(error){
+          alert(error);
+        }else{
+          this.subjectList=null
+          console.log("success"+ this.subjectList);
+        }
+      })
+    }
+    ,
     addSubject(event){
       event.preventDefault()
       Meteor.call('createSubject',this.title,(error)=>{

@@ -8,12 +8,12 @@ Meteor.methods({
             name,
             email,
             phone,
-            birthDate
+            birthDate,
+            subjects:[]
         })
     },
-    "updateStudent"(_id,list){
-        return Students.update(_id,{
-            $set: { subjects: list }
-        })
+    "updateStudent"(id,list){
+        console.log(list);
+        return Students.update({_id:id},{$set: { subjects: list }})
     }
 })
