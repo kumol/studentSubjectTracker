@@ -12,6 +12,9 @@ Meteor.methods({
             subjects:[]
         })
     },
+    "deleteStudent"(id){
+        return Students.remove({_id:id});
+    },
     "updateStudent"(id,list){
         return Students.update({_id:id},{$set: { subjects: list }})
     },

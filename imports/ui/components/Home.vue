@@ -41,7 +41,7 @@
     <div v-show="sbForm">
       <form class="form-group">
           <input type="text" class="form-control col-md-5 mb-3" v-model="title" name="title" placeholder="title" required>
-          <input type="submit" class="btn btn-primary col-md-2" name="submit" @click="addSubject($event)" value="Add new Student">
+          <input type="submit" class="btn btn-primary col-md-2" name="submit" @click="addSubject($event)" value="Add Subject">
       </form>
     </div>
     <div v-show="sbList">
@@ -61,7 +61,6 @@
       </table>
     </div>
 
-  <button @click="removeSubjectOperation()">remove</button>
     <div v-show="asSubject">
       <table class="table" v-show="hideList">
         <thead>
@@ -175,7 +174,7 @@ export default {
     allocSub(sub){
       let subject = this.subjectList.find(s=>{return s._id == sub._id});
       if(!subject){
-        this.subjectList.push(sub);
+        this.subjectList.push({_id:sub._id,title:sub.title});
       }
     },
     asignSubject(student){
@@ -189,25 +188,14 @@ export default {
           alert(error)
         }else{
           console.log("Success in Delete");
+          this.removeStudentFromSubject(student);
         }
       })
     },
-    updateSubject(id,student){
-      // let id = "muzMNWoNYiB7ueMmK";
-      console.log(id);
-      console.log(student);
-
-      Meteor.call('updateSubject',id,student,(error)=>{
-        if(error){
-          alert(error);
-        }
-        else{
-          console.log("success in subjectUpdate");
-        }
-      })
-    },
+    
     saveAllocatedSubjects(){
       event.preventDefault()
+      
       Meteor.call('updateStudent',this.selectedStudent._id,this.subjectList,(error)=>{
         if(error){
           alert(error);
@@ -221,7 +209,7 @@ export default {
                 console.log("colling updateSubject");
                 console.log(sub._id);
                 console.log(this.selectedStudent);
-                //updateSubject(sub._id,this.selectedStudent);
+                updateSubject(sub._id,this.selectedStudent);
                 
               }
             }
@@ -232,6 +220,16 @@ export default {
           });
           this.subjectList=null
           console.log("success"+ this.subjectList);
+        }
+      })
+    },updateSubject(id,student){
+      tempStudent={_id:student._id,name:student.name}
+      Meteor.call('updateSubject',id,tempStudent,(error)=>{
+        if(error){
+          alert(error);
+        }
+        else{
+          console.log("success in subjectUpdate");
         }
       })
     },
@@ -272,12 +270,29 @@ export default {
       })
     },
     removeSubjectOperation(subject){
+      demosubject = {_id:subject._id,title:subject.title}
       this.students.forEach(e=>{
-        Meteor.call("updateStudentSubjectDeleted",e._id,subject,(error)=>{
+        console.log(demosubject);
+
+        Meteor.call("updateStudentSubjectDeleted",e._id,demosubject,(error)=>{
           if(error){
             alert(error)
           }else{
             console.log("deleted One time");
+          }
+        })
+      })
+    },
+    removeStudentFromSubject(student){
+      this.subjects.forEach(e=>{
+        console.log(student);
+        let tempStudent={student:{_id:student._id,name:student.name}}
+        console.log(tempStudent)
+        Meteor.call("removeStudentFromSubject",e._id,tempStudent,(error)=>{
+          if(error){
+            alert(error)
+          }else{
+            console.log("deleted Students from Subject");
           }
         })
       })

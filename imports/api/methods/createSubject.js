@@ -10,5 +10,13 @@ Meteor.methods({
     },
     "deleteSubject"(id){
         return Subjects.remove({_id:id});
+    },
+    "removeStudentFromSubject"(id,student){
+        console.log(student)
+        return Subjects.update({_id:id},{
+            $pull:{
+                "students": student
+              }
+        })
     }
 })
