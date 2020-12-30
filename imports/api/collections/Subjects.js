@@ -1,7 +1,7 @@
 import { Mongo } from 'meteor/mongo';
 import Students from './Students';
 
-export default new Mongo.Collection('Subjects',{schema:{
+export default new Mongo.Collection('subjects',{schema:{
     title:{
         type:String
     },

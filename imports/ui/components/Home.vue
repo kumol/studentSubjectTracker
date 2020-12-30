@@ -174,7 +174,7 @@ export default {
       let displayString;
       if(student.subjects){
         displayString = student.subjects.map(s=>{return s.title}).toString();
-        //console.log(val)
+        
       }
       return displayString;
     },
@@ -194,7 +194,6 @@ export default {
         if(error){
           alert(error)
         }else{
-          console.log("Success in Delete");
           this.removeStudentFromSubject(student);
         }
       })
@@ -213,7 +212,7 @@ export default {
             subject = this.subjects.find(subject=>{return subject._id == sub._id});
             if(subject.students){
               indexStudent = subject.students.findIndex(s=>{return s.student._id == this.selectedStudent._id})
-              console.log("indexing student" ,indexStudent );
+              
               if(indexStudent<0){
                 this.updateSubject(sub._id,this.selectedStudent);
               }
@@ -222,7 +221,7 @@ export default {
             }
           })
           this.subjectList=null
-          console.log("success"+ this.subjectList);
+          
         }
       })
     },updateSubject(id,student){
@@ -232,7 +231,7 @@ export default {
           alert(error);
         }
         else{
-          console.log("success in subjectUpdate");
+          
         }
       })
     },
@@ -242,8 +241,8 @@ export default {
         if(error){
           alert(error);
         }else{
-          this.title="",
-          console.log("success")
+          this.title=""
+          
         }
       })
     },
@@ -253,7 +252,6 @@ export default {
         if (error) {
           alert(error.error)
         } else {
-          console.log("success");
           this.name = ''
           this.email = ''
           this.phone = '',
@@ -267,7 +265,6 @@ export default {
         if(error){
           alert(error)
         }else{
-          console.log("Success in Delete");
           this.removeSubjectOperation(subject);
         }
       })
@@ -275,27 +272,22 @@ export default {
     removeSubjectOperation(subject){
       demosubject = {_id:subject._id,title:subject.title}
       this.students.forEach(e=>{
-        console.log(demosubject);
 
         Meteor.call("updateStudentSubjectDeleted",e._id,demosubject,(error)=>{
           if(error){
             alert(error)
           }else{
-            console.log("deleted One time");
           }
         })
       })
     },
     removeStudentFromSubject(student){
       this.subjects.forEach(e=>{
-        console.log(student);
         let tempStudent={student:{_id:student._id,name:student.name}}
-        console.log(tempStudent)
         Meteor.call("removeStudentFromSubject",e._id,tempStudent,(error)=>{
           if(error){
             alert(error)
           }else{
-            console.log("deleted Students from Subject");
           }
         })
       })
