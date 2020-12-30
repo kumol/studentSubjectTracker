@@ -230,9 +230,6 @@ export default {
         if(error){
           alert(error);
         }
-        else{
-          
-        }
       })
     },
     addSubject(event){
@@ -242,7 +239,6 @@ export default {
           alert(error);
         }else{
           this.title=""
-          
         }
       })
     },
@@ -276,7 +272,6 @@ export default {
         Meteor.call("updateStudentSubjectDeleted",e._id,demosubject,(error)=>{
           if(error){
             alert(error)
-          }else{
           }
         })
       })
@@ -287,7 +282,6 @@ export default {
         Meteor.call("removeStudentFromSubject",e._id,tempStudent,(error)=>{
           if(error){
             alert(error)
-          }else{
           }
         })
       })
