@@ -10,15 +10,22 @@
       </ul>
     </div>
     <div v-show="stForm">
+      <h2>Student Input Form</h2>
+      <hr/>
         <form class="form-group" style="margin:0 auto;">
-          <input type="text" class="form-control col-md-5 mb-3" v-model="name" name="name" placeholder="Name" required>
-          <input type="text" class="form-control col-md-5 mb-3" v-model="email" name="email" placeholder="Email" required>
-          <input type="text" class="form-control col-md-5 mb-3" v-model="phone" name="phone" placeholder="Phone Number">
-          <input type="date" class="form-control col-md-5 mb-3" v-model="birthDate" name="birthDate" placeholder="Birth Date">
-          <input type="submit" class="btn btn-primary col-md-3 mb-4" name="submit" @click="addStudent($event)" value="Add new Student">
+          <input type="text" class="form-control col-md-7 mb-3 centerized" v-model="name" name="name" placeholder="Name" required >
+          <input type="text" class="form-control col-md-7 mb-3 centerized" v-model="email" name="email" placeholder="Email" required >
+          <input type="text" class="form-control col-md-7 mb-3 centerized" v-model="phone" name="phone" placeholder="Phone Number" >
+          <input type="date" class="form-control col-md-7 mb-3 centerized" v-model="birthDate" name="birthDate" placeholder="Birth Date">
+          <div class="centerized col-md-5" style="text-align:center">
+            <input type="submit" class="btn btn-primary mb-4 " name="submit" @click="addStudent($event)" value="Add new Student" >
+          </div>
         </form>
     </div>
     <div v-show="stList">
+
+      <h2>Students List </h2>
+      <hr/>
        <table class="table">
         <thead>
           <th>Name</th>
@@ -39,17 +46,22 @@
       </table>
     </div>
     <div v-show="sbForm">
+      <h2>Subject Input Form</h2>
+      <hr/>
       <form class="form-group">
-          <input type="text" class="form-control col-md-5 mb-3" v-model="title" name="title" placeholder="title" required>
-          <input type="submit" class="btn btn-primary col-md-2" name="submit" @click="addSubject($event)" value="Add Subject">
+          <input  type="text" class="form-control col-md-7 mb-3 centerized" v-model="title" name="title" placeholder="title" required>
+          <div class="centerized col-md-5" style="text-align:center"><button type="submit" class="btn btn-primary" name="submit" @click="addSubject($event)" >Add Subject</button>
+</div>
       </form>
     </div>
     <div v-show="sbList">
+      <h2>Subjects List</h2>
+      <hr/>
       <table class="table">
         <thead>
           <th>Title</th>
           <th>Students</th>
-          
+          <th>Action</th>
         </thead>
         <tr v-for="subject in subjects" :key="subject.title">
           <td>
@@ -62,7 +74,9 @@
     </div>
 
     <div v-show="asSubject">
-      <table class="table" v-show="hideList">
+      <h2>Assign subject to the students </h2>
+      <hr/>
+      <table class="table" v-show="!hideSelectionList">
         <thead>
           <th>Name</th>
           <th>Email</th>
@@ -78,11 +92,11 @@
           <td>{{student.phone}}</td>
           <td>{{student.birthDate}}</td>
           <td>{{showData(student)}}</td>
-          <td><button class="btn btn-light" @click="asignSubject(student)">assign Subject</button></td>
+          <td><button class="btn btn-light" @click="selectStudent(student)">assign Subject</button></td>
         </tr>
       </table>
 
-      <div>
+      <div v-show="hideSelectionList">
         <table class="table">
           <thead>
             <th>Name</th>
@@ -100,12 +114,9 @@
 
       <ul style="list-style:none; display:inline-flex;">
           <li v-for="subject in subjects" :key="subject.title" class="mr-3"><button class="btn btn-success" @click="allocSub(subject)">{{subject.title}}</button></li>
+          <li><button style="margin:0 auto;" class="btn btn-primary" @click="saveAllocatedSubjects()">Save</button>
+</li>
       </ul>
-
-      <div class="row">
-        <!-- <button class="btn btn-primary" @click="updateSubject()">updateSubject</button> -->
-        <button style="margin:0 auto;" class="btn btn-primary" @click="saveAllocatedSubjects()">Save</button>
-      </div>
       </div>
     </div>
   </div>
@@ -117,9 +128,9 @@ import Subjects from "../../api/collections/Subjects"
 export default {
   data() {
     return {
-      hideList:true,
-      stForm:true,
-      stList:false,
+      hideSelectionList:false,
+      stForm:false,
+      stList:true,
       sbForm:false,
       sbList:false,
       asSubject:false,
@@ -130,8 +141,6 @@ export default {
       title: "",
       selectedStudent:{},
       subjectList:[],
-      selectedSubject:null,
-      subjectListId:[],
     }
   },
   meteor: {
@@ -148,14 +157,12 @@ export default {
   },
   methods: {
     showStudents(subject){
-      let val;
+      let displayString;
       if(subject.students){
-        val = subject.students.map(s=>{
-          // console.log(s.student.name)
-          // console.log(s.student.email)
+        displayString = subject.students.map(s=>{
           return s.student.name}).toString();
       }
-      return val;
+      return displayString;
     },
     selectedSubjectList(){
       if(this.subjectList){
@@ -164,21 +171,21 @@ export default {
       return ""
     },
     showData(student){
-      let val;
+      let displayString;
       if(student.subjects){
-        val = student.subjects.map(s=>{return s.title}).toString();
+        displayString = student.subjects.map(s=>{return s.title}).toString();
         //console.log(val)
       }
-      return val;
+      return displayString;
     },
     allocSub(sub){
-      let subject = this.subjectList.find(s=>{return s._id == sub._id});
-      if(!subject){
+      let index = this.subjectList.findIndex(s=>{return s._id == sub._id});
+      if(index == -1){
         this.subjectList.push({_id:sub._id,title:sub.title});
       }
     },
-    asignSubject(student){
-      //this.hideList = false;
+    selectStudent(student){
+      this.hideSelectionList = true;
       this.selectedStudent = student;
       this.subjectList = student.subjects ? student.subjects : [];
     },
@@ -195,29 +202,25 @@ export default {
     
     saveAllocatedSubjects(){
       event.preventDefault()
-      
       Meteor.call('updateStudent',this.selectedStudent._id,this.subjectList,(error)=>{
         if(error){
           alert(error);
         }else{
-          this.subjectList.forEach(sub => {
-            if(sub.students){
-              isStudent = sub.students.find(s=> {return s.student._id == this.selectedStudent._id});
-              if(isStudent){
-                  console.log(isStudent.name)
-              }else{
-                console.log("colling updateSubject");
-                console.log(sub._id);
-                console.log(this.selectedStudent);
-                updateSubject(sub._id,this.selectedStudent);
-                
+          this.hideSelectionList = false
+
+          this.subjectList.forEach(sub=>{
+            //index = this.selectedStudent.subjects.findIndex(subject=>{return subjcect._id==sub._id});
+            subject = this.subjects.find(subject=>{return subject._id == sub._id});
+            if(subject.students){
+              indexStudent = subject.students.findIndex(s=>{return s.student._id == this.selectedStudent._id})
+              console.log("indexing student" ,indexStudent );
+              if(indexStudent<0){
+                this.updateSubject(sub._id,this.selectedStudent);
               }
-            }
-            else{
-              //console.log("colling updateSubject",sub._id,this.selectedStudent);
+            }else{
               this.updateSubject(sub._id,this.selectedStudent);
             }
-          });
+          })
           this.subjectList=null
           console.log("success"+ this.subjectList);
         }
@@ -304,35 +307,40 @@ export default {
           this.stList=false,
           this.sbForm=false,
           this.sbList=false,
-          this.asSubject=false
+          this.asSubject=false,
+          this.hideSelectionList=false
           break
         case "stList":
           this.stForm = false,
           this.stList=true,
           this.sbForm=false,
           this.sbList=false,
-          this.asSubject=false
+          this.asSubject=false,
+          this.hideSelectionList=false
           break
         case "sbForm":
           this.stForm = false,
           this.stList=false,
           this.sbForm=true,
           this.sbList=false,
-          this.asSubject=false
+          this.asSubject=false,
+          this.hideSelectionList=false
           break
         case "sbList":
           this.stForm = false,
           this.stList=false,
           this.sbForm=false,
           this.sbList=true,
-          this.asSubject=false
+          this.asSubject=false,
+          this.hideSelectionList=false
           break
         case "asSubject":
           this.stForm = false,
           this.stList=false,
           this.sbForm=false,
           this.sbList=false,
-          this.asSubject=true
+          this.asSubject=true,
+          this.hideSelectionList=false
           break
       }
     }
@@ -342,9 +350,6 @@ export default {
 </script>
 
 <style scoped>
-  ul {
-    font-family: monospace;
-  }
   .nav-style{
     list-style: none;
     display: inline-flex !important;
@@ -352,5 +357,8 @@ export default {
   .button{
     margin-right: 20px;
     padding: 10px 20px;
+  }
+  .centerized{
+    margin:0 auto;
   }
 </style>
